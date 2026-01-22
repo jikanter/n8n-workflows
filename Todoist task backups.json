@@ -1,0 +1,530 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-22T20:40:35.000Z",
+    "createdAt": "2026-01-22T20:40:13.969Z",
+    "versionId": "29becca3-9537-4600-8790-d1f6bdf0b535",
+    "workflowId": "I6J2XDblpoyt0GHX",
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {}
+            ]
+          }
+        },
+        "id": "bb58d8d0-53db-4362-8316-728f786cad3d",
+        "name": "Daily at Midnight",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -400,
+          -256
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "returnAll": true,
+          "filters": {}
+        },
+        "id": "e93f3be7-59cf-4554-94a4-2e26c3de9b74",
+        "name": "Todoist",
+        "type": "n8n-nodes-base.todoist",
+        "typeVersion": 2,
+        "position": [
+          112,
+          -256
+        ],
+        "credentials": {
+          "todoistApi": {
+            "id": "",
+            "name": "Todoist account"
+          }
+        },
+        "notes": "Runs nightly"
+      },
+      {
+        "parameters": {
+          "binaryPropertyName": "=data",
+          "options": {
+            "fileName": "={{ $now.format(\"yyMMdd\") }}_todoist_tasks.csv",
+            "headerRow": true
+          }
+        },
+        "id": "68fd2f9e-6ddd-46fd-870b-1ccbc3e27777",
+        "name": "Convert to File",
+        "type": "n8n-nodes-base.convertToFile",
+        "typeVersion": 1.1,
+        "position": [
+          96,
+          128
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "write",
+          "fileName": "={{$('TargetDirectoryConfig').item.json.targetDirectory}}/{{$('Convert to File').item.binary.data.fileName}} ",
+          "dataPropertyName": "=data",
+          "options": {
+            "append": false
+          }
+        },
+        "id": "fea2fa4c-9ffe-4ca1-a0d1-4d4a6288dd6d",
+        "name": "Read/Write Files from Disk",
+        "type": "n8n-nodes-base.readWriteFile",
+        "typeVersion": 1,
+        "position": [
+          720,
+          -128
+        ]
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -384,
+          112
+        ],
+        "id": "354c6996-13ef-4f42-8827-c5e98eb88781",
+        "name": "When clicking ‘Execute workflow’"
+      },
+      {
+        "parameters": {
+          "resource": "message",
+          "guildId": {
+            "__rl": true,
+            "value": "",
+            "mode": "list",
+            "cachedResultName": "your discord servers name",
+            "cachedResultUrl": "your discord servers url"
+          },
+          "channelId": {
+            "__rl": true,
+            "value": "",
+            "mode": "list",
+            "cachedResultName": "your-discord-channel",
+            "cachedResultUrl": "your-discord-channelsurl"
+          },
+          "content": "=[N8N Todoist Backup]\nTodoist Backup finished\nDate: {{ DateTime.now().format(\"dd/LL/yyyy\") }}\nBackup Info:\n {{ $json.fileName }}\nHost: script\nLink: https://cms:5678/workflow/{{ $workflow.id }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.discord",
+        "typeVersion": 2,
+        "position": [
+          1056,
+          -64
+        ],
+        "id": "aa9ae8d6-489c-4786-bd75-4153c372b549",
+        "name": "Send a message",
+        "webhookId": "yourwebhookid",
+        "credentials": {
+          "discordBotApi": {
+            "id": "yourbotapi",
+            "name": "Discord Bot account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "dfccd6c5-3def-4903-9236-7b35289fd7dd",
+                "name": "targetDirectory",
+                "value": "/your/target/directory",
+                "type": "string"
+              },
+              {
+                "id": "9662d434-e7d2-4155-bdda-f410c4515685",
+                "name": "data",
+                "value": "data",
+                "type": "binary"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          368,
+          -112
+        ],
+        "id": "8fee687d-34a1-48cd-847e-1b50578bf504",
+        "name": "TargetDirectoryConfig"
+      },
+      {
+        "parameters": {
+          "content": "## How to Use this Workflow\n\n1. Change the \"TargetDirectoryConfig\" Node to the directory on your machine you want your Todoist note to sync down to.\n2. Add your Todoist API Key to the \"Todoist\" Node\n3. Add your target discord bot to your \"Discord\" channel.\n4. [Optional] - Change how often you want to execute this node in the \"Daily at Midnight\" Node.\n\n### Setting up Todoist in N8N\n[N8N Todoist Docs](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.todoist/) has the information on setting up the Todoist node in N8N\n\n### Setting up Discord in N8N\nThe [N8N Discord Docs](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.discord/) has the information on setting up the Discord Node\n",
+          "height": 416,
+          "width": 480
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          304,
+          -592
+        ],
+        "typeVersion": 1,
+        "id": "3aecc7ab-db1c-44dd-9e96-f9af34e60cec",
+        "name": "Sticky Note"
+      }
+    ],
+    "connections": {
+      "Daily at Midnight": {
+        "main": [
+          [
+            {
+              "node": "Todoist",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Todoist": {
+        "main": [
+          [
+            {
+              "node": "Convert to File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Convert to File": {
+        "main": [
+          [
+            {
+              "node": "TargetDirectoryConfig",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read/Write Files from Disk": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When clicking ‘Execute workflow’": {
+        "main": [
+          [
+            {
+              "node": "Todoist",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "TargetDirectoryConfig": {
+        "main": [
+          [
+            {
+              "node": "Read/Write Files from Disk",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Jordan Kanter",
+    "name": "Version 29becca3",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "29becca3-9537-4600-8790-d1f6bdf0b535",
+  "connections": {
+    "Daily at Midnight": {
+      "main": [
+        [
+          {
+            "node": "Todoist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Todoist": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "TargetDirectoryConfig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Todoist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TargetDirectoryConfig": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2024-04-03T03:09:05.883Z",
+  "id": "I6J2XDblpoyt0GHX",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Todoist task backups",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "bb58d8d0-53db-4362-8316-728f786cad3d",
+      "name": "Daily at Midnight",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -400,
+        -256
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {}
+      },
+      "id": "e93f3be7-59cf-4554-94a4-2e26c3de9b74",
+      "name": "Todoist",
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2,
+      "position": [
+        112,
+        -256
+      ],
+      "credentials": {
+        "todoistApi": {
+          "id": "AAFhiDFSVq2UsIXq",
+          "name": "Todoist account"
+        }
+      },
+      "notes": "Runs nightly"
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "=data",
+        "options": {
+          "fileName": "={{ $now.format(\"yyMMdd\") }}_todoist_tasks.csv",
+          "headerRow": true
+        }
+      },
+      "id": "68fd2f9e-6ddd-46fd-870b-1ccbc3e27777",
+      "name": "Convert to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{$('TargetDirectoryConfig').item.json.targetDirectory}}/{{$('Convert to File').item.binary.data.fileName}} ",
+        "dataPropertyName": "=data",
+        "options": {
+          "append": false
+        }
+      },
+      "id": "fea2fa4c-9ffe-4ca1-a0d1-4d4a6288dd6d",
+      "name": "Read/Write Files from Disk",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        768,
+        48
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        112
+      ],
+      "id": "354c6996-13ef-4f42-8827-c5e98eb88781",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "1116467412120903741",
+          "mode": "list",
+          "cachedResultName": "jordankanter's server",
+          "cachedResultUrl": "https://discord.com/channels/1116467412120903741"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1463995394328625294",
+          "mode": "list",
+          "cachedResultName": "recurrent-jobs",
+          "cachedResultUrl": "https://discord.com/channels/1116467412120903741/1463995394328625294"
+        },
+        "content": "=[N8N Todoist Backup]\n✅ Todoist Backup finished\nDate: {{ DateTime.now().format(\"dd/LL/yyyy\") }}\nBackup Info:\n {{ $json.fileName }}\nHost: script\nLink: https://cms:5678/workflow/{{ $workflow.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        64
+      ],
+      "id": "aa9ae8d6-489c-4786-bd75-4153c372b549",
+      "name": "Send a message",
+      "webhookId": "605acf68-9d80-4b39-aab8-1cbc32d6c8d1",
+      "credentials": {
+        "discordBotApi": {
+          "id": "M4G9xtw2GwUqSuns",
+          "name": "Discord Bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dfccd6c5-3def-4903-9236-7b35289fd7dd",
+              "name": "targetDirectory",
+              "value": "/media/admin/CRICK/data/n8n",
+              "type": "string"
+            },
+            {
+              "id": "9662d434-e7d2-4155-bdda-f410c4515685",
+              "name": "data",
+              "value": "data",
+              "type": "binary"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        -112
+      ],
+      "id": "8fee687d-34a1-48cd-847e-1b50578bf504",
+      "name": "TargetDirectoryConfig"
+    },
+    {
+      "parameters": {
+        "content": "## How to Use this Workflow\n\n1. Change the \"TargetDirectoryConfig\" Node to the directory on your machine you want your Todoist note to sync down to.\n2. Add your Todoist API Key to the \"Todoist\" Node\n3. Add your target discord bot to your \"Discord\" channel.\n4. [Optional] - Change how often you want to execute this node in the \"Daily at Midnight\" Node.\n\n### Setting up Todoist in N8N\n[N8N Todoist Docs](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.todoist/) has the information on setting up the Todoist node in N8N\n\n### Setting up Discord in N8N\nThe [N8N Discord Docs](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.discord/) has the information on setting up the Discord Node\n",
+        "height": 416,
+        "width": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        304,
+        -592
+      ],
+      "typeVersion": 1,
+      "id": "3aecc7ab-db1c-44dd-9e96-f9af34e60cec",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2024-05-31T18:13:17.000Z",
+      "createdAt": "2024-04-03T03:09:05.898Z",
+      "role": "workflow:owner",
+      "workflowId": "I6J2XDblpoyt0GHX",
+      "projectId": "wFOHNvM4AS43zcNX"
+    }
+  ],
+  "staticData": {
+    "node:Daily at Midnight": {
+      "recurrencyRules": [],
+      "recurrenceRules": []
+    }
+  },
+  "tags": [
+    {
+      "updatedAt": "2024-05-02T17:20:45.143Z",
+      "createdAt": "2024-05-02T17:20:45.143Z",
+      "id": "3qOvSOK3omrrf6kI",
+      "name": "todoist"
+    },
+    {
+      "updatedAt": "2024-05-02T17:20:46.667Z",
+      "createdAt": "2024-05-02T17:20:46.667Z",
+      "id": "NXKICcJYsPSm54ul",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-22T21:23:13.399Z",
+  "versionId": "ed8c37d8-aacd-4172-9da7-a005c0d1726f"
+}
